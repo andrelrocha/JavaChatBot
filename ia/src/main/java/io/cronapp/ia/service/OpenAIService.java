@@ -2,12 +2,12 @@ package io.cronapp.ia.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class OpenAIService {
@@ -20,45 +20,31 @@ public class OpenAIService {
     @Value("${openai.url}")
     private String url;
 
-    public String getApiKey() {
-        return apiKey;
-    }
 
-    public String getModelId() {
-        return modelId;
-    }
-
-    public String getUrl() { return url;}
 
     private final RestTemplate restTemplate;
     @Autowired
-    public OpenAIService(RestTemplate restTemplate) {
+    public OpenAIService (RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public String openAIServiceCall(String userInput)
+    public String openAIServiceCall(String userInput) {
 
-    /*
-    public String chatWithGPT(String prompt) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
+        var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + apiKey);
+        System.out.println(headers);
 
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("prompt", prompt);
-        requestBody.put("max_tokens", "50"); // Ajuste o número de tokens conforme necessário
+        var requestBody = "{\"model\": \"" + modelId +
+                "\", \"messages\": [{\"role\": \"user\", \"content\": \"" +
+                userInput + "\"}]}";
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+        var request = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, entity, String.class);
+        var response = restTemplate.postForObject(url, request, String.class);
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        } else {
-            return "Erro na solicitação.";
-        }
+        return response;
+
     }
-     */
+
 }
